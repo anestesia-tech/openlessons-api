@@ -1,14 +1,14 @@
 services:
   api:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ${TAG}
     container_name: "${PROJECT_NAME}-backend"
     ports:
       - 8080:8000
     depends_on:
       postgres:
         condition: service_healthy
+    environment:
+      DB_URL: "${DB_URL}"
 
   postgres:
     image: postgres:13
@@ -31,4 +31,5 @@ services:
 
 volumes:
   pg_data: 
+
 
