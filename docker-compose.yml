@@ -9,6 +9,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    environment:
+      DB_URL: "${DB_URL}"
 
   postgres:
     image: postgres:13
