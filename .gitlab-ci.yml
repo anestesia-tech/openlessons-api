@@ -1,0 +1,30 @@
+variables:
+  REGISTRY: anestesia-tech.gitlab.yandexcloud.net:5050
+  TAG: openlessons/${CI_PROJECT_NAME}:$CI_COMMIT_SHORT_SHA
+  PROJECT_NAME: openlessons
+  DB: api
+
+stages:
+  - Linter
+  - Build
+  - Deploy
+
+run_linter:
+  stage: Linter
+  script:
+    - pylint -d C0301 app.py
+  allow_failure: true
+
+build_image:
+  stage: Build
+  before_script:
+    - docker info
+    - echo $TOKEN | docker login $REGISTRY -u anestesia --password-stdin
+  script:
+    - docker build -t ${REGISTRY}/${TAG} .
+    - docker push ${REGISTRY}/${TAG}
+
+run_deploy:
+  stage: Deploy
+  script:
+    - TAG=${REGISTRY}/${TAG} PROJECT_NAME=$PROJECT_NAME PG_PASS=$PG_PASS DB=$DB PG_USER=$PG_USER DB_URL=$DB_URL docker compose up -d --force-recreate
